@@ -1,6 +1,6 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -25,37 +25,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased bg-gray-50 text-gray-900`}>
+      <body className={`${geistSans.variable} antialiased bg-[#FDFDFD] text-slate-900`}>
         {isLoginPage ? (
           children
         ) : (
           <div className="flex min-h-screen">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full">
-              <div className="p-6">
-                <h1 className="text-xl font-bold text-blue-600 tracking-tight">Freelance CRM</h1>
+            {/* Minimalist Sidebar */}
+            <aside className="w-64 bg-white border-r border-slate-100 flex flex-col fixed h-full z-50">
+              <div className="p-10">
+                <h1 className="text-sm font-black tracking-[0.3em] uppercase text-slate-900">
+                  FreeFlow
+                </h1>
               </div>
               
-              <nav className="flex-1 px-4 space-y-1">
-                <NavLink href="/" active={pathname === "/"}>Dashboard</NavLink>
-                <NavLink href="/projects" active={pathname.startsWith("/projects")}>Proyek</NavLink>
-                <NavLink href="/invoices" active={pathname.startsWith("/invoices")}>Invoice</NavLink>
-                <NavLink href="/clients/new" active={pathname === "/clients/new"}>Tambah Klien</NavLink>
+              <nav className="flex-1 px-6 space-y-1">
+                <NavLink href="/" active={pathname === "/"} label="Overview" />
+                <NavLink href="/projects" active={pathname.startsWith("/projects")} label="Projects" />
+                <NavLink href="/invoices" active={pathname.startsWith("/invoices")} label="Invoices" />
+                <NavLink href="/clients/new" active={pathname === "/clients/new"} label="Add Client" />
               </nav>
 
-              <div className="p-4 border-t border-gray-100">
+              <div className="p-8">
                 <button 
                   onClick={handleLogout}
-                  className="w-full flex items-center px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors duration-300"
                 >
-                  Keluar Akun
+                  Sign Out
                 </button>
               </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 ml-64 p-8">
-              {children}
+            {/* Main Content Area */}
+            <main className="flex-1 ml-64 p-12 lg:p-16">
+              <div className="max-w-5xl mx-auto">
+                {children}
+              </div>
             </main>
           </div>
         )}
@@ -64,17 +68,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 
-function NavLink({ href, children, active }: { href: string; children: React.ReactNode; active: boolean }) {
+function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
     <Link 
       href={href} 
-      className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+      className={`group flex items-center justify-between py-3 text-[11px] font-bold uppercase tracking-widest transition-all duration-300 ${
         active 
-          ? "bg-blue-50 text-blue-700" 
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          ? "text-slate-900" 
+          : "text-slate-400 hover:text-slate-600"
       }`}
     >
-      {children}
+      <span>{label}</span>
+      {active && <div className="w-1 h-1 bg-slate-900 rounded-full"></div>}
     </Link>
   );
 }

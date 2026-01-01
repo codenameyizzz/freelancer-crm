@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-// Tambahkan import Link
 import Link from "next/link";
 
 export default function InvoicesPage() {
@@ -33,74 +32,64 @@ export default function InvoicesPage() {
     if (!error) fetchInvoices();
   };
 
-  if (loading) return <div className="p-10 text-center text-gray-500">Memuat invoice...</div>;
+  if (loading) return <div className="p-10 text-[10px] font-bold uppercase tracking-widest text-slate-400">Loading experience...</div>;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Manajemen Invoice</h1>
-        <p className="text-gray-500 text-sm">Pantau status pembayaran dari klien Anda.</p>
-      </div>
+    <div className="space-y-12">
+      <header className="flex justify-between items-end">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Invoices</h1>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{invoices.length} Records Found</p>
+      </header>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Klien & Proyek</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Jumlah</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Jatuh Tempo</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+            <tr className="border-b border-slate-900">
+              <th className="py-6 text-[10px] font-bold text-slate-900 uppercase tracking-widest">Client & Project</th>
+              <th className="py-6 text-[10px] font-bold text-slate-900 uppercase tracking-widest">Amount</th>
+              <th className="py-6 text-[10px] font-bold text-slate-900 uppercase tracking-widest text-center">Status</th>
+              <th className="py-6 text-[10px] font-bold text-slate-900 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100">
             {invoices.map((inv) => (
-              <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
-                  <p className="font-bold text-gray-900">{inv.projects?.clients?.name}</p>
-                  <p className="text-xs text-gray-500">{inv.projects?.title}</p>
+              <tr key={inv.id} className="group transition-colors">
+                <td className="py-8">
+                  <div className="font-bold text-slate-900">{inv.projects?.clients?.name}</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{inv.projects?.title}</div>
                 </td>
-                <td className="px-6 py-4 font-semibold text-gray-900">
+                <td className="py-8 text-sm font-medium text-slate-900">
                   Rp {inv.amount.toLocaleString('id-ID')}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {new Date(inv.due_date).toLocaleDateString('id-ID')}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    inv.status === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                <td className="py-8 text-center">
+                  <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 ${
+                    inv.status === 'Paid' ? 'text-green-500' : 'text-amber-500'
                   }`}>
                     {inv.status}
                   </span>
                 </td>
-                {/* --- BAGIAN YANG DIUBAH --- */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
+                <td className="py-8 text-right">
+                  <div className="flex justify-end items-center gap-6">
                     <Link 
                       href={`/invoices/print/${inv.id}`}
-                      className="text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
+                      className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors"
                     >
-                      Cetak PDF
+                      View
                     </Link>
-                    
                     {inv.status !== 'Paid' && (
                       <button 
                         onClick={() => markAsPaid(inv.id)}
-                        className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap"
+                        className="text-[10px] font-bold uppercase tracking-widest text-slate-900 border border-slate-900 px-4 py-2 hover:bg-slate-900 hover:text-white transition-all"
                       >
-                        Tandai Lunas
+                        Settle
                       </button>
                     )}
                   </div>
                 </td>
-                {/* --------------------------- */}
               </tr>
             ))}
           </tbody>
         </table>
-        {invoices.length === 0 && (
-          <div className="p-10 text-center text-gray-400 text-sm">Belum ada invoice yang dibuat.</div>
-        )}
       </div>
     </div>
   );
