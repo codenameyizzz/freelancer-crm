@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/projects'
 
   if (code) {
-    const cookieStore = await cookies()
+    const cookieStore = await cookies() // Perbaikan pemanggilan cookies
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -17,7 +17,6 @@ export async function GET(request: Request) {
           get(name: string) {
             return cookieStore.get(name)?.value
           },
-          // Perbaikan di sini: Menghilangkan shorthand yang menyebabkan error
           set(name: string, value: string, options: any) {
             cookieStore.set({ name, value, ...options })
           },
@@ -34,6 +33,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Jika terjadi error, kembali ke login
-  return NextResponse.redirect(`${origin}/login`)
+  // Jika gagal, kembali ke login dengan indikasi error
+  return NextResponse.redirect(`${origin}/login?error=auth_failed`)
 }
