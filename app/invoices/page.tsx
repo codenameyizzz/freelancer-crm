@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
+// Tambahkan import Link
+import Link from "next/link";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -71,16 +73,27 @@ export default function InvoicesPage() {
                     {inv.status}
                   </span>
                 </td>
+                {/* --- BAGIAN YANG DIUBAH --- */}
                 <td className="px-6 py-4">
-                  {inv.status !== 'Paid' && (
-                    <button 
-                      onClick={() => markAsPaid(inv.id)}
-                      className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors"
+                  <div className="flex items-center gap-2">
+                    <Link 
+                      href={`/invoices/print/${inv.id}`}
+                      className="text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
                     >
-                      Tandai Lunas
-                    </button>
-                  )}
+                      Cetak PDF
+                    </Link>
+                    
+                    {inv.status !== 'Paid' && (
+                      <button 
+                        onClick={() => markAsPaid(inv.id)}
+                        className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap"
+                      >
+                        Tandai Lunas
+                      </button>
+                    )}
+                  </div>
                 </td>
+                {/* --------------------------- */}
               </tr>
             ))}
           </tbody>
