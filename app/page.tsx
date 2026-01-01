@@ -1,65 +1,69 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import Link from "next/link";
+
+export default function DashboardPage() {
+  const [stats, setStats] = useState({ totalRevenue: 0, pendingAmount: 0, activeProjects: 0 });
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      const { data: invoices } = await supabase.from("invoices").select("amount, status");
+      const { count: projectCount } = await supabase.from("projects").select("*", { count: 'exact', head: true }).eq("status", "In Progress");
+
+      let revenue = 0;
+      let pending = 0;
+
+      invoices?.forEach(inv => {
+        if (inv.status === 'Paid') revenue += Number(inv.amount);
+        else pending += Number(inv.amount);
+      });
+
+      setStats({ totalRevenue: revenue, pendingAmount: pending, activeProjects: projectCount || 0 });
+    }
+    fetchDashboardData();
+  }, [supabase]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Selamat Datang, Yizreel!</h1>
+        <p className="text-gray-500">Berikut adalah ringkasan bisnis Anda hari ini.</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard title="Total Pendapatan" value={`Rp ${stats.totalRevenue.toLocaleString('id-ID')}`} color="text-green-600" />
+        <StatCard title="Tagihan Pending" value={`Rp ${stats.pendingAmount.toLocaleString('id-ID')}`} color="text-orange-600" />
+        <StatCard title="Proyek Aktif" value={stats.activeProjects.toString()} color="text-blue-600" />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <h2 className="font-semibold mb-4">Aksi Cepat</h2>
+        <div className="flex gap-4">
+          <Link href="/projects/new" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+            + Proyek Baru
+          </Link>
+          <Link href="/clients/new" className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+            Tambah Klien
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ title, value, color }: { title: string; value: string; color: string }) {
+  return (
+    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+      <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   );
 }

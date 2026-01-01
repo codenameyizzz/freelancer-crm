@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+// Ganti import ini
+import { createBrowserClient } from "@supabase/ssr"; 
 import { useRouter } from "next/navigation";
-
-// Inisialisasi Supabase (Sebaiknya ini ditaruh di file terpisah, tapi di sini untuk kemudahan)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function NewProjectPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<any[]>([]);
+
+    // Gunakan createBrowserClient agar sinkron dengan Login & Middleware
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     // State untuk form
     const [formData, setFormData] = useState({
